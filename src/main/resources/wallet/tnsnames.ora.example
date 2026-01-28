@@ -1,0 +1,20 @@
+# Example tnsnames.ora for Oracle Wallet connection
+# Replace with your actual Oracle connection details
+
+clm_db = 
+  (DESCRIPTION = 
+    (ADDRESS = (PROTOCOL = TCP)(HOST = your-oracle-host.example.com)(PORT = 1521))
+    (CONNECT_DATA = 
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = clmdb)
+    )
+  )
+
+# For Oracle Autonomous Database (ADB):
+# clm_db_high = 
+#   (description= 
+#     (retry_count=20)(retry_delay=3)
+#     (address=(protocol=tcps)(port=1522)(host=adb.us-ashburn-1.oraclecloud.com))
+#     (connect_data=(service_name=xxx_clmdb_high.adb.oraclecloud.com))
+#     (security=(ssl_server_dn_match=yes))
+#   )

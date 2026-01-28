@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: clm-service-test
+
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=Oracle;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+# Disable Oracle Wallet for tests
+oracle:
+  wallet:
+    enabled: false
+    wallet-location: /tmp/test-wallet
+    tns-name: test_db
+
+# Disable Camel routes auto-start for testing
+camel:
+  springboot:
+    main-run-controller: false
+
+# Test configuration
+clm:
+  tenant:
+    default-id: TEST
+  etl:
+    batch-size: 100
+    parallel-consumers: 1
+    staging-retention-days: 1
+  integration:
+    dedup-window-hours: 1
+    max-retries: 1
+    aggregation-timeout-seconds: 10
+
+logging:
+  level:
+    com.gprintex.clm: DEBUG

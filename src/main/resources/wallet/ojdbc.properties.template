@@ -1,0 +1,25 @@
+# Oracle JDBC Properties Configuration Template
+#
+# !! SECURITY WARNING !!
+# DO NOT store real passwords in source control.
+# Use environment variables or a secrets manager for credentials.
+# This is a template file - copy to ojdbc.properties and configure locally.
+#
+# The real ojdbc.properties should NOT be committed to version control.
+
+# Connection property while using Oracle wallets.
+oracle.net.wallet_location=(SOURCE=(METHOD=FILE)(METHOD_DATA=(DIRECTORY=${TNS_ADMIN})))
+
+# FOLLOW THESE STEPS FOR USING JKS
+# (1) Uncomment the following properties to use JKS.
+# (2) Comment out the oracle.net.wallet_location property above
+# (3) Set the password using environment variables - NEVER hardcode passwords
+#
+# For JKS configuration, set these environment variables:
+#   TNS_TRUSTSTORE_PASSWORD - Password for the trust store
+#   TNS_KEYSTORE_PASSWORD - Password for the key store
+#
+#javax.net.ssl.trustStore=${TNS_ADMIN}/truststore.jks
+#javax.net.ssl.trustStorePassword=${TNS_TRUSTSTORE_PASSWORD}
+#javax.net.ssl.keyStore=${TNS_ADMIN}/keystore.jks
+#javax.net.ssl.keyStorePassword=${TNS_KEYSTORE_PASSWORD}

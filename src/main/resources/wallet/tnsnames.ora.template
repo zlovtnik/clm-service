@@ -1,0 +1,18 @@
+# Oracle TNS Names Configuration Template
+# Copy this file to tnsnames.ora and replace placeholders with your actual values.
+# The real tnsnames.ora should NOT be committed to version control.
+#
+# Replace the following placeholders:
+#   <YOUR_DATABASE_ID> - Your Oracle ADB database identifier (e.g., g6f35956cc6036f)
+#   <YOUR_DATABASE_NAME> - Your database name (e.g., mainerc)
+#   <YOUR_REGION> - Your Oracle Cloud region (e.g., us-chicago-1)
+
+<YOUR_DATABASE_NAME>_high = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.<YOUR_REGION>.oraclecloud.com))(connect_data=(service_name=<YOUR_DATABASE_ID>_<YOUR_DATABASE_NAME>_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+<YOUR_DATABASE_NAME>_medium = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.<YOUR_REGION>.oraclecloud.com))(connect_data=(service_name=<YOUR_DATABASE_ID>_<YOUR_DATABASE_NAME>_medium.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+<YOUR_DATABASE_NAME>_low = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.<YOUR_REGION>.oraclecloud.com))(connect_data=(service_name=<YOUR_DATABASE_ID>_<YOUR_DATABASE_NAME>_low.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+<YOUR_DATABASE_NAME>_tp = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.<YOUR_REGION>.oraclecloud.com))(connect_data=(service_name=<YOUR_DATABASE_ID>_<YOUR_DATABASE_NAME>_tp.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+<YOUR_DATABASE_NAME>_tpurgent = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.<YOUR_REGION>.oraclecloud.com))(connect_data=(service_name=<YOUR_DATABASE_ID>_<YOUR_DATABASE_NAME>_tpurgent.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))

@@ -1,0 +1,8 @@
+# Example sqlnet.ora for Oracle Wallet
+# Replace with your actual wallet location
+
+WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY = "/opt/oracle/wallet")))
+SSL_SERVER_DN_MATCH = yes
+
+# For mTLS connections (e.g., Oracle Autonomous Database)
+# SSL_SERVER_CERT_DN = "CN=adb.us-ashburn-1.oraclecloud.com, OU=Oracle ADB, O=Oracle Corporation, L=Redwood City, ST=California, C=US"

@@ -1,0 +1,76 @@
+spring:
+  application:
+    name: clm-service
+
+  datasource:
+    # Use full connection descriptor to avoid TNS resolution issues
+    url: jdbc:oracle:thin:@(description=(retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.us-chicago-1.oraclecloud.com))(connect_data=(service_name=g6f35956cc6036f_mainerc_medium.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))?TNS_ADMIN=${ORACLE_WALLET_LOCATION}
+    driver-class-name: oracle.jdbc.OracleDriver
+    username: ${ORACLE_USERNAME}
+    password: ${ORACLE_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 30000
+      max-lifetime: 1800000
+      pool-name: clm-oracle-pool
+      connection-test-query: SELECT 1 FROM DUAL
+      data-source-properties:
+        oracle.net.wallet_location: "(SOURCE=(METHOD=FILE)(METHOD_DATA=(DIRECTORY=${ORACLE_WALLET_LOCATION})))"
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+# Oracle Wallet Configuration
+oracle:
+  wallet:
+    enabled: true
+    wallet-location: ${ORACLE_WALLET_LOCATION}
+    tns-name: ${ORACLE_TNS_NAME}
+
+# Apache Camel Configuration
+camel:
+  springboot:
+    name: clm-camel-context
+    main-run-controller: true
+    stream-caching-enabled: true
+    tracing: false
+  
+  component:
+    sql:
+      data-source: "#dataSource"
+
+# Application Configuration
+clm:
+  tenant:
+    default-id: ${CLM_TENANT_ID:DEFAULT}
+  
+  etl:
+    batch-size: 1000
+    parallel-consumers: 4
+    staging-retention-days: 30
+  
+  integration:
+    dedup-window-hours: 24
+    max-retries: 3
+    aggregation-timeout-seconds: 300
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,camelroutes
+  endpoint:
+    health:
+      show-details: when_authorized
+
+# Logging
+logging:
+  level:
+    com.gprintex.clm: DEBUG
+    org.apache.camel: INFO
+    org.springframework.jdbc: DEBUG

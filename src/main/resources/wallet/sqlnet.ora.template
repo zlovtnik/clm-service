@@ -1,0 +1,13 @@
+# Oracle SQL*Net Configuration Template
+# Copy this file to sqlnet.ora and set WALLET_DIR environment variable before running.
+# The real sqlnet.ora should NOT be committed to version control.
+#
+# Option 1: Use environment variable (recommended)
+# Set WALLET_DIR to the absolute path of your wallet directory, then:
+# WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY="${WALLET_DIR}")))
+#
+# Option 2: Use relative path from TNS_ADMIN
+# WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY="${TNS_ADMIN}")))
+
+WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY="${WALLET_DIR}")))
+SSL_SERVER_DN_MATCH=yes
