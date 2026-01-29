@@ -99,7 +99,7 @@ CREATE OR REPLACE PACKAGE customer_pkg AS
     -- Validate customer data
     FUNCTION validate_customer(
         p_customer IN customer_t
-    ) RETURN validation_results_tab;
+    ) RETURN validation_result_tab;
     
     -- Validate tax ID (CPF/CNPJ for Brazil)
     FUNCTION validate_tax_id(
@@ -273,7 +273,7 @@ CREATE OR REPLACE PACKAGE BODY customer_pkg AS
         p_user IN VARCHAR2
     ) RETURN NUMBER IS
         v_id NUMBER;
-        v_errors validation_results_tab;
+        v_errors validation_result_tab;
         v_existing NUMBER;
     BEGIN
         -- Validate customer
@@ -389,9 +389,13 @@ CREATE OR REPLACE PACKAGE BODY customer_pkg AS
                 WHEN OTHERS THEN
                     p_metadata.error_count := p_metadata.error_count + 1;
                     -- Log error details to etl_error_log table for debugging and audit
+                    -- Note: batch_id from transform_metadata_t is used as session_id for correlation
+                    DECLARE
+                        v_err_code VARCHAR2(50) := TO_CHAR(SQLCODE);
+                        v_err_msg VARCHAR2(4000) := SQLERRM;
                     BEGIN
-                        INSERT INTO etl_error_log (batch_id, record_index, sqlcode, sqlerrm, occurred_at)
-                        VALUES (p_metadata.batch_id, i, SQLCODE, SQLERRM, SYSTIMESTAMP);
+                        INSERT INTO etl_error_log (session_id, seq_num, error_code, error_message, occurred_at)
+                        VALUES (p_metadata.batch_id, i, v_err_code, v_err_msg, SYSTIMESTAMP);
                     EXCEPTION
                         WHEN OTHERS THEN
                             NULL; -- Suppress logging errors to allow processing to continue
@@ -492,7 +496,7 @@ CREATE OR REPLACE PACKAGE BODY customer_pkg AS
         p_user IN VARCHAR2,
         p_validation OUT validation_result_t
     ) IS
-        v_errors validation_results_tab;
+        v_errors validation_result_tab;
     BEGIN
         -- Validate
         v_errors := validate_customer(p_customer);
@@ -520,9 +524,9 @@ CREATE OR REPLACE PACKAGE BODY customer_pkg AS
         WHERE tenant_id = p_customer.tenant_id AND id = p_customer.id;
         
         IF SQL%ROWCOUNT = 0 THEN
-            p_validation := validation_result_t(0, 'NOT_FOUND', 'Customer not found', 'id');
+            p_validation := validation_result_t(0, 'NOT_FOUND', 'Customer not found', NULL, 'id', 'ERROR', NULL);
         ELSE
-            p_validation := validation_result_t(1, NULL, NULL, NULL);
+            p_validation := validation_result_t(1, NULL, NULL, NULL, NULL, NULL, NULL);
         END IF;
     END update_customer;
     
@@ -550,15 +554,15 @@ CREATE OR REPLACE PACKAGE BODY customer_pkg AS
     
     FUNCTION validate_customer(
         p_customer IN customer_t
-    ) RETURN validation_results_tab IS
-        v_errors validation_results_tab := validation_results_tab();
+    ) RETURN validation_result_tab IS
+        v_errors validation_result_tab := validation_result_tab();
         v_tax_result validation_result_t;
         v_email_result validation_result_t;
         
         PROCEDURE add_error(p_code VARCHAR2, p_message VARCHAR2, p_field VARCHAR2) IS
         BEGIN
             v_errors.EXTEND;
-            v_errors(v_errors.COUNT) := validation_result_t(0, p_code, p_message, p_field);
+            v_errors(v_errors.COUNT) := validation_result_t(0, p_code, p_message, NULL, p_field, 'ERROR', NULL);
         END;
     BEGIN
         -- Required fields
@@ -602,51 +606,60 @@ CREATE OR REPLACE PACKAGE BODY customer_pkg AS
         v_clean_id VARCHAR2(20);
     BEGIN
         IF p_tax_id IS NULL THEN
-            RETURN validation_result_t(1, NULL, NULL, NULL);
+            RETURN validation_result_t(1, NULL, NULL, NULL, NULL, NULL, NULL);
         END IF;
         
         v_clean_id := REGEXP_REPLACE(p_tax_id, '[^0-9]', '');
         
         IF p_customer_type = c_type_individual THEN
             IF NOT validate_cpf(v_clean_id) THEN
-                RETURN validation_result_t(0, 'INVALID_CPF', 'Invalid CPF: ' || p_tax_id, 'tax_id');
+                RETURN validation_result_t(0, 'INVALID_CPF', 'Invalid CPF: ***' || SUBSTR(v_clean_id, -4), NULL, 'tax_id', 'ERROR', NULL);
             END IF;
         ELSIF p_customer_type = c_type_company THEN
             IF NOT validate_cnpj(v_clean_id) THEN
-                RETURN validation_result_t(0, 'INVALID_CNPJ', 'Invalid CNPJ: ' || p_tax_id, 'tax_id');
+                RETURN validation_result_t(0, 'INVALID_CNPJ', 'Invalid CNPJ: ***' || SUBSTR(v_clean_id, -4), NULL, 'tax_id', 'ERROR', NULL);
             END IF;
         ELSE
             -- Try both formats
             IF LENGTH(v_clean_id) = 11 THEN
                 IF NOT validate_cpf(v_clean_id) THEN
-                    RETURN validation_result_t(0, 'INVALID_CPF', 'Invalid CPF: ' || p_tax_id, 'tax_id');
+                    RETURN validation_result_t(0, 'INVALID_CPF', 'Invalid CPF: ***' || SUBSTR(v_clean_id, -4), NULL, 'tax_id', 'ERROR', NULL);
                 END IF;
             ELSIF LENGTH(v_clean_id) = 14 THEN
                 IF NOT validate_cnpj(v_clean_id) THEN
-                    RETURN validation_result_t(0, 'INVALID_CNPJ', 'Invalid CNPJ: ' || p_tax_id, 'tax_id');
+                    RETURN validation_result_t(0, 'INVALID_CNPJ', 'Invalid CNPJ: ***' || SUBSTR(v_clean_id, -4), NULL, 'tax_id', 'ERROR', NULL);
                 END IF;
             ELSE
-                RETURN validation_result_t(0, 'INVALID_TAX_ID', 'Invalid tax ID format: ' || p_tax_id, 'tax_id');
+                RETURN validation_result_t(0, 'INVALID_TAX_ID', 'Invalid tax ID format (length: ' || NVL(LENGTH(v_clean_id), 0) || ')', NULL, 'tax_id', 'ERROR', NULL);
             END IF;
         END IF;
         
-        RETURN validation_result_t(1, NULL, NULL, NULL);
+        RETURN validation_result_t(1, NULL, NULL, NULL, NULL, NULL, NULL);
     END validate_tax_id;
     
     FUNCTION validate_email(
         p_email IN VARCHAR2
     ) RETURN validation_result_t IS
+        v_masked_email VARCHAR2(200);
+        v_at_pos PLS_INTEGER;
     BEGIN
         IF p_email IS NULL THEN
-            RETURN validation_result_t(1, NULL, NULL, NULL);
+            RETURN validation_result_t(1, NULL, NULL, NULL, NULL, NULL, NULL);
         END IF;
         
         -- Basic email regex validation
         IF NOT REGEXP_LIKE(p_email, '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$') THEN
-            RETURN validation_result_t(0, 'INVALID_EMAIL', 'Invalid email format: ' || p_email, 'email');
+            -- Create masked email: keep first char of local part + *** + @domain
+            v_at_pos := INSTR(p_email, '@');
+            IF v_at_pos > 1 THEN
+                v_masked_email := SUBSTR(p_email, 1, 1) || '***@' || SUBSTR(p_email, v_at_pos + 1);
+            ELSE
+                v_masked_email := '***@[invalid]';
+            END IF;
+            RETURN validation_result_t(0, 'INVALID_EMAIL', 'Invalid email format: ' || v_masked_email, NULL, 'email', 'ERROR', NULL);
         END IF;
         
-        RETURN validation_result_t(1, NULL, NULL, NULL);
+        RETURN validation_result_t(1, NULL, NULL, NULL, NULL, NULL, NULL);
     END validate_email;
     
     -- ==========================================================================
@@ -714,7 +727,7 @@ CREATE OR REPLACE PACKAGE BODY customer_pkg AS
         WHERE tenant_id = p_tenant_id AND id = p_merge_id;
         
         IF v_keep_exists = 0 OR v_merge_exists = 0 THEN
-            p_validation := validation_result_t(0, 'NOT_FOUND', 'One or both customers not found', 'id');
+            p_validation := validation_result_t(0, 'NOT_FOUND', 'One or both customers not found', NULL, 'id', 'ERROR', NULL);
             RETURN;
         END IF;
         
@@ -731,7 +744,7 @@ CREATE OR REPLACE PACKAGE BODY customer_pkg AS
             updated_by = p_user
         WHERE tenant_id = p_tenant_id AND id = p_merge_id;
         
-        p_validation := validation_result_t(1, NULL, NULL, NULL);
+        p_validation := validation_result_t(1, NULL, NULL, NULL, NULL, NULL, NULL);
     END merge_customers;
     
 END customer_pkg;

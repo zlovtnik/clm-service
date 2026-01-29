@@ -82,7 +82,7 @@ CREATE OR REPLACE PACKAGE etl_pkg AS
     -- Batch load records
     PROCEDURE batch_load_to_staging(
         p_session_id IN VARCHAR2,
-        p_records IN etl_staging_tab
+        p_records IN etl_staging_row_tab
     );
     
     -- ==========================================================================
@@ -116,7 +116,7 @@ CREATE OR REPLACE PACKAGE etl_pkg AS
     -- Validate staging data (pipelined for streaming results - no DML)
     FUNCTION validate_staging_data(
         p_session_id IN VARCHAR2
-    ) RETURN validation_results_tab PIPELINED;
+    ) RETURN validation_result_tab PIPELINED;
     
     -- Apply validation results to staging records (performs DML)
     PROCEDURE apply_validation_results(
@@ -206,6 +206,28 @@ CREATE OR REPLACE PACKAGE BODY etl_pkg AS
     BEGIN
         RETURN SYS_GUID();
     END generate_session_id;
+    
+    -- Autonomous error logging (commits independently of main transaction)
+    PROCEDURE log_etl_error(
+        p_session_id IN VARCHAR2,
+        p_seq_num IN NUMBER DEFAULT NULL,
+        p_error_code IN VARCHAR2,
+        p_error_message IN VARCHAR2,
+        p_error_detail IN CLOB DEFAULT NULL
+    ) IS
+        PRAGMA AUTONOMOUS_TRANSACTION;
+    BEGIN
+        INSERT INTO etl_error_log (
+            session_id, seq_num, error_code, error_message, error_detail
+        ) VALUES (
+            p_session_id, p_seq_num, p_error_code, p_error_message, p_error_detail
+        );
+        COMMIT;
+    EXCEPTION
+        WHEN OTHERS THEN
+            -- Silently ignore logging failures to not interfere with main process
+            ROLLBACK;
+    END log_etl_error;
     
     -- Check if session is active
     PROCEDURE ensure_session_active(p_session_id IN VARCHAR2) IS
@@ -401,13 +423,22 @@ CREATE OR REPLACE PACKAGE BODY etl_pkg AS
     
     PROCEDURE batch_load_to_staging(
         p_session_id IN VARCHAR2,
-        p_records IN etl_staging_tab
+        p_records IN etl_staging_row_tab
     ) IS
     BEGIN
         ensure_session_active(p_session_id);
         
         FORALL i IN 1..p_records.COUNT
-            INSERT INTO etl_staging VALUES p_records(i);
+            INSERT INTO etl_staging (
+                session_id, seq_num, entity_type, source_system,
+                raw_data, transformed_data, status, error_message,
+                created_at, processed_at
+            ) VALUES (
+                p_session_id, p_records(i).seq_num, p_records(i).entity_type,
+                p_records(i).source_system, p_records(i).raw_data, p_records(i).transformed_data,
+                p_records(i).status, p_records(i).error_message,
+                p_records(i).created_at, p_records(i).processed_at
+            );
             
         update_session_counts(p_session_id);
         COMMIT;
@@ -424,6 +455,7 @@ CREATE OR REPLACE PACKAGE BODY etl_pkg AS
     ) IS
         v_transformed_data CLOB;
         v_source_system VARCHAR2(100);
+        v_error_message VARCHAR2(4000);
     BEGIN
         ensure_session_active(p_session_id);
         
@@ -462,9 +494,13 @@ CREATE OR REPLACE PACKAGE BODY etl_pkg AS
                 
             EXCEPTION
                 WHEN OTHERS THEN
+                    v_error_message := SQLERRM;
+                    -- Log error to autonomous error log (persists even if transaction rolls back)
+                    log_etl_error(r.session_id, r.seq_num, SQLCODE, v_error_message, DBMS_UTILITY.FORMAT_ERROR_BACKTRACE);
+                    
                     UPDATE etl_staging SET
                         status = c_record_failed,
-                        error_message = SQLERRM,
+                        error_message = v_error_message,
                         processed_at = SYSTIMESTAMP
                     WHERE session_id = r.session_id AND seq_num = r.seq_num;
                     
@@ -484,6 +520,7 @@ CREATE OR REPLACE PACKAGE BODY etl_pkg AS
     ) IS
         v_transformed_data CLOB;
         v_source_system VARCHAR2(100);
+        v_error_message VARCHAR2(4000);
     BEGIN
         ensure_session_active(p_session_id);
         
@@ -516,9 +553,13 @@ CREATE OR REPLACE PACKAGE BODY etl_pkg AS
                 
             EXCEPTION
                 WHEN OTHERS THEN
+                    v_error_message := SQLERRM;
+                    -- Log error to autonomous error log
+                    log_etl_error(r.session_id, r.seq_num, SQLCODE, v_error_message, DBMS_UTILITY.FORMAT_ERROR_BACKTRACE);
+                    
                     UPDATE etl_staging SET
                         status = c_record_failed,
-                        error_message = SQLERRM,
+                        error_message = v_error_message,
                         processed_at = SYSTIMESTAMP
                     WHERE session_id = r.session_id AND seq_num = r.seq_num;
                     
@@ -552,7 +593,7 @@ CREATE OR REPLACE PACKAGE BODY etl_pkg AS
     -- Pipelined function ONLY returns validation issues (no DML)
     FUNCTION validate_staging_data(
         p_session_id IN VARCHAR2
-    ) RETURN validation_results_tab PIPELINED IS
+    ) RETURN validation_result_tab PIPELINED IS
         v_result validation_result_t;
         v_json_obj JSON_OBJECT_T;
         v_has_error BOOLEAN;
@@ -615,16 +656,16 @@ CREATE OR REPLACE PACKAGE BODY etl_pkg AS
                 
                 -- Pipe result for this record
                 IF v_has_error THEN
-                    v_result := validation_result_t(r.seq_num, 'MISSING_FIELD', RTRIM(v_errors, '; '), 'seq_num=' || r.seq_num);
+                    v_result := validation_result_t(0, 'MISSING_FIELD', RTRIM(v_errors, '; '), r.seq_num, NULL, 'ERROR', NULL);
                     PIPE ROW(v_result);
                 ELSE
-                    v_result := validation_result_t(r.seq_num, 'VALID', 'Record passed validation', NULL);
+                    v_result := validation_result_t(1, NULL, NULL, r.seq_num, NULL, NULL, NULL);
                     PIPE ROW(v_result);
                 END IF;
                 
             EXCEPTION
                 WHEN OTHERS THEN
-                    v_result := validation_result_t(r.seq_num, 'PARSE_ERROR', SQLERRM, 'seq_num=' || r.seq_num);
+                    v_result := validation_result_t(0, 'PARSE_ERROR', SQLERRM, r.seq_num, NULL, 'ERROR', NULL);
                     PIPE ROW(v_result);
             END;
         END LOOP;
@@ -636,23 +677,28 @@ CREATE OR REPLACE PACKAGE BODY etl_pkg AS
     PROCEDURE apply_validation_results(
         p_session_id IN VARCHAR2
     ) IS
+        v_error_message VARCHAR2(4000);
     BEGIN
         -- Ensure session is active before applying changes
         ensure_session_active(p_session_id);
         
         -- Collect validation results and update staging records
         FOR r IN (SELECT * FROM TABLE(validate_staging_data(p_session_id))) LOOP
-            IF r.issue_type = 'VALID' THEN
+            IF r.is_valid = 1 THEN
                 UPDATE etl_staging SET
                     status = c_record_validated,
                     processed_at = SYSTIMESTAMP
-                WHERE session_id = p_session_id AND seq_num = r.record_id;
+                WHERE session_id = p_session_id AND seq_num = r.seq_num;
             ELSE
+                v_error_message := NVL(r.error_code, 'VALIDATION_FAILED');
+                IF r.error_message IS NOT NULL THEN
+                    v_error_message := v_error_message || ': ' || r.error_message;
+                END IF;
                 UPDATE etl_staging SET
                     status = c_record_failed,
-                    error_message = r.issue_type || ': ' || r.message,
+                    error_message = v_error_message,
                     processed_at = SYSTIMESTAMP
-                WHERE session_id = p_session_id AND seq_num = r.record_id;
+                WHERE session_id = p_session_id AND seq_num = r.seq_num;
             END IF;
         END LOOP;
         
@@ -706,6 +752,7 @@ CREATE OR REPLACE PACKAGE BODY etl_pkg AS
         v_json_obj JSON_OBJECT_T;
         v_contract contract_t;
         v_contract_id NUMBER;
+        v_error_message VARCHAR2(4000);
     BEGIN
         ensure_session_active(p_session_id);
         p_results := transform_metadata_t(p_session_id);
@@ -759,9 +806,10 @@ CREATE OR REPLACE PACKAGE BODY etl_pkg AS
                 
             EXCEPTION
                 WHEN OTHERS THEN
+                    v_error_message := SQLERRM;
                     UPDATE etl_staging SET
                         status = c_record_failed,
-                        error_message = SQLERRM,
+                        error_message = v_error_message,
                         processed_at = SYSTIMESTAMP
                     WHERE session_id = r.session_id AND seq_num = r.seq_num;
                     
@@ -782,6 +830,7 @@ CREATE OR REPLACE PACKAGE BODY etl_pkg AS
         v_json_obj JSON_OBJECT_T;
         v_customer customer_t;
         v_customer_id NUMBER;
+        v_error_message VARCHAR2(4000);
     BEGIN
         ensure_session_active(p_session_id);
         p_results := transform_metadata_t(p_session_id);
@@ -827,9 +876,10 @@ CREATE OR REPLACE PACKAGE BODY etl_pkg AS
                 
             EXCEPTION
                 WHEN OTHERS THEN
+                    v_error_message := SQLERRM;
                     UPDATE etl_staging SET
                         status = c_record_failed,
-                        error_message = SQLERRM,
+                        error_message = v_error_message,
                         processed_at = SYSTIMESTAMP
                     WHERE session_id = r.session_id AND seq_num = r.seq_num;
                     

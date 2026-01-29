@@ -1,11 +1,14 @@
 package com.gprintex.clm.repository;
 
+import com.gprintex.clm.domain.AutoRenewalResult;
 import com.gprintex.clm.domain.Contract;
+import com.gprintex.clm.domain.ContractStatistics;
 import com.gprintex.clm.domain.TransformMetadata;
 import com.gprintex.clm.domain.ValidationResult;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -99,6 +102,38 @@ public interface ContractRepository {
      * Get allowed status transitions for current status.
      */
     List<String> getAllowedTransitions(String currentStatus);
+
+    // ========================================================================
+    // ANALYTICS & BATCH OPERATIONS
+    // ========================================================================
+
+    /**
+     * Calculate total value of a contract (including line items).
+     * @return Optional.empty() if contract does not exist, Optional.of(total) otherwise
+     */
+    Optional<BigDecimal> calculateContractTotal(String tenantId, Long contractId);
+
+    /**
+     * Get statistics for contracts within a date range.
+     */
+    ContractStatistics getStatistics(String tenantId, LocalDate startDate, LocalDate endDate);
+
+    /**
+     * Check if a contract is expiring within the given days threshold.
+     * @return Optional.empty() if contract does not exist, Optional.of(true/false) if found
+     */
+    Optional<Boolean> isExpiringSoon(String tenantId, Long contractId, int daysThreshold);
+
+    /**
+     * Check if a status transition is valid according to state machine.
+     */
+    boolean isValidTransition(String currentStatus, String newStatus);
+
+    /**
+     * Process automatic renewals for eligible contracts.
+     * @return Try wrapping the result for consistent batch error handling
+     */
+    Try<AutoRenewalResult> processAutoRenewals(String tenantId, String user);
 
     // ========================================================================
     // FILTER RECORD

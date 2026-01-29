@@ -8,12 +8,45 @@ spring:
     username: sa
     password:
 
+  # Disable OAuth2 for tests (use mock security)
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://mock-idp.test/.well-known/jwks.json
+
 # Disable Oracle Wallet for tests
 oracle:
   wallet:
     enabled: false
     wallet-location: /tmp/test-wallet
     tns-name: test_db
+
+# Disable ORDS for tests (use mock)
+ords:
+  base-url: http://localhost:8089/ords/test
+  schema: test
+  auth-type: NONE
+  username: test
+  password: test
+
+# Disable security for tests
+security:
+  jwt:
+    jwk-set-uri: https://mock-idp.test/.well-known/jwks.json
+    issuer: https://mock-idp.test
+    audience: clm-service-test
+    roles-claim: roles
+    tenant-claim: tenant_id
+    user-claim: sub
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+    allow-credentials: true
+  api:
+    require-tenant-header: false
+    validate-tenant-from-jwt: false
+    api-key: test-api-key
 
 # Disable Camel routes auto-start for testing
 camel:

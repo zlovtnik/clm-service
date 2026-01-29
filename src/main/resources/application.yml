@@ -2,10 +2,13 @@ spring:
   application:
     name: clm-service
 
+  # Conditionally enable datasource (for JDBC mode)
+  # Note: When using JDBC mode, ORACLE_USERNAME and ORACLE_PASSWORD MUST be set
   datasource:
     # Use full connection descriptor to avoid TNS resolution issues
-    url: jdbc:oracle:thin:@(description=(retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.us-chicago-1.oraclecloud.com))(connect_data=(service_name=g6f35956cc6036f_mainerc_medium.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))?TNS_ADMIN=${ORACLE_WALLET_LOCATION}
+    url: jdbc:oracle:thin:@(description=(retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.us-chicago-1.oraclecloud.com))(connect_data=(service_name=g6f35956cc6036f_mainerc_medium.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))?TNS_ADMIN=${ORACLE_WALLET_LOCATION:}
     driver-class-name: oracle.jdbc.OracleDriver
+    # These MUST be set when using JDBC mode - no defaults to fail fast on misconfiguration
     username: ${ORACLE_USERNAME}
     password: ${ORACLE_PASSWORD}
     hikari:
@@ -17,19 +20,76 @@ spring:
       pool-name: clm-oracle-pool
       connection-test-query: SELECT 1 FROM DUAL
       data-source-properties:
-        oracle.net.wallet_location: "(SOURCE=(METHOD=FILE)(METHOD_DATA=(DIRECTORY=${ORACLE_WALLET_LOCATION})))"
+        oracle.net.wallet_location: "(SOURCE=(METHOD=FILE)(METHOD_DATA=(DIRECTORY=${ORACLE_WALLET_LOCATION:})))"
 
   jackson:
     serialization:
       write-dates-as-timestamps: false
     default-property-inclusion: non_null
 
-# Oracle Wallet Configuration
+  # OAuth2 Resource Server configuration
+  # NOTE: These MUST be configured in production - no defaults to fail fast
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${OAUTH2_JWK_SET_URI}
+          issuer-uri: ${OAUTH2_ISSUER_URI}
+
+# Oracle Wallet Configuration (for JDBC mode)
 oracle:
   wallet:
-    enabled: true
-    wallet-location: ${ORACLE_WALLET_LOCATION}
-    tns-name: ${ORACLE_TNS_NAME}
+    enabled: ${ORACLE_WALLET_ENABLED:false}
+    wallet-location: ${ORACLE_WALLET_LOCATION:}
+    tns-name: ${ORACLE_TNS_NAME:}
+
+# Oracle REST Data Services (ORDS) Configuration
+# Auth Types:
+#   BASIC          - Username/password authentication (service account)
+#   JWT_PASSTHROUGH - Forward Keycloak JWT to ORDS (requires ORDS OAuth2 setup)
+#   OAUTH2         - Client credentials flow
+#   NONE           - No authentication (not recommended for production)
+# NOTE: Credentials are validated at runtime based on selected auth type
+ords:
+  base-url: ${ORDS_BASE_URL:}
+  schema: ${ORDS_SCHEMA:rcs}
+  auth-type: ${ORDS_AUTH_TYPE:BASIC}
+  # Basic Auth credentials - validated at runtime when auth-type is BASIC
+  username: ${ORDS_USERNAME:}
+  password: ${ORDS_PASSWORD:}
+  # OAuth2 client credentials - validated at runtime when auth-type is OAUTH2
+  client-id: ${ORDS_CLIENT_ID:}
+  client-secret: ${ORDS_CLIENT_SECRET:}
+  token-url: ${ORDS_TOKEN_URL:}
+  connect-timeout: 10000
+  read-timeout: 30000
+  debug-enabled: ${ORDS_DEBUG:false}
+
+# Security Configuration - Keycloak Integration
+# For JWT_PASSTHROUGH to ORDS, configure ORDS to validate tokens from the same Keycloak realm
+security:
+  jwt:
+    # Keycloak JWKS endpoint: https://<keycloak>/realms/<realm>/protocol/openid-connect/certs
+    jwk-set-uri: ${OAUTH2_JWK_SET_URI}
+    # Keycloak issuer: https://<keycloak>/realms/<realm>
+    issuer: ${OAUTH2_ISSUER_URI}
+    audience: ${OAUTH2_AUDIENCE:clm-service}
+    roles-claim: ${JWT_ROLES_CLAIM:roles}
+    tenant-claim: ${JWT_TENANT_CLAIM:tenant_id}
+    user-claim: ${JWT_USER_CLAIM:sub}
+  cors:
+    # Origins list - empty entries are filtered out
+    allowed-origins:
+      - ${CORS_ORIGIN_1:http://localhost:3000}
+      - ${CORS_ORIGIN_2:http://localhost:5173}
+    allow-credentials: true
+  api:
+    require-tenant-header: ${REQUIRE_TENANT_HEADER:true}
+    validate-tenant-from-jwt: ${VALIDATE_TENANT_JWT:true}
+    # API key for service-to-service auth (optional, only required if used)
+    api-key: ${API_KEY:}
+    # Auto-sync users from JWT to Oracle on each authenticated request
+    auto-sync-users: ${AUTO_SYNC_USERS:true}
 
 # Apache Camel Configuration
 camel:

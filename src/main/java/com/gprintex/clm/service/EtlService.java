@@ -79,6 +79,57 @@ public class EtlService {
     }
 
     /**
+     * Get detailed session info including counts by status.
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Object> getSessionInfo(String sessionId) {
+        var sql = """
+            SELECT s.*,
+                (SELECT COUNT(*) FROM etl_staging WHERE session_id = s.session_id AND status = 'PENDING') as pending_count,
+                (SELECT COUNT(*) FROM etl_staging WHERE session_id = s.session_id AND status = 'TRANSFORMED') as transformed_count,
+                (SELECT COUNT(*) FROM etl_staging WHERE session_id = s.session_id AND status = 'VALIDATED') as validated_count,
+                (SELECT COUNT(*) FROM etl_staging WHERE session_id = s.session_id AND status = 'LOADED') as loaded_count,
+                (SELECT COUNT(*) FROM etl_staging WHERE session_id = s.session_id AND status = 'FAILED') as failed_count
+            FROM etl_sessions s
+            WHERE s.session_id = ?
+            """;
+
+        return jdbcTemplate.queryForMap(sql, sessionId);
+    }
+
+    /**
+     * Get all active ETL sessions.
+     */
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getActiveSessions() {
+        var sql = """
+            SELECT session_id, source_system, entity_type, status, 
+                   record_count, success_count, error_count, started_at, started_by
+            FROM etl_sessions 
+            WHERE status IN ('ACTIVE', 'PROCESSING')
+            ORDER BY started_at DESC
+            """;
+
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    /**
+     * Get session audit trail.
+     */
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getSessionAuditTrail(String sessionId) {
+        var sql = """
+            SELECT audit_id, entity_type, entity_id, tenant_id, 
+                   transform_type, transform_rule, transform_timestamp, transformed_by
+            FROM transform_audit
+            WHERE session_id = ?
+            ORDER BY transform_timestamp
+            """;
+
+        return jdbcTemplate.queryForList(sql, sessionId);
+    }
+
+    /**
      * Complete a session successfully.
      */
     @Transactional
@@ -111,6 +162,46 @@ public class EtlService {
         );
     }
 
+    /**
+     * Rollback session - removes all staged data and marks session as rolled back.
+     */
+    @Transactional
+    public void rollbackSession(String sessionId) {
+        var call = callFactory.forProcedure(PKG_NAME, "ROLLBACK_SESSION")
+            .declareParameters(
+                new SqlParameter("P_SESSION_ID", Types.VARCHAR)
+            );
+
+        call.execute(Map.of("P_SESSION_ID", sessionId));
+    }
+
+    /**
+     * Cleanup old sessions based on retention days.
+     * Returns the number of sessions deleted.
+     * @param retentionDays must be > 0 and <= 3650
+     * @throws IllegalArgumentException if retentionDays is out of valid range
+     */
+    @Transactional
+    public long cleanupOldSessions(int retentionDays) {
+        // Validate retention days to avoid accidental data loss
+        if (retentionDays <= 0) {
+            throw new IllegalArgumentException("retentionDays must be greater than 0");
+        }
+        if (retentionDays > 3650) {
+            throw new IllegalArgumentException("retentionDays must not exceed 3650 (10 years)");
+        }
+        
+        var call = callFactory.forProcedure(PKG_NAME, "CLEANUP_OLD_SESSIONS")
+            .declareParameters(
+                new SqlParameter("P_RETENTION_DAYS", Types.NUMERIC),
+                new SqlOutParameter("P_DELETED_COUNT", Types.NUMERIC)
+            );
+
+        var result = call.execute(Map.of("P_RETENTION_DAYS", retentionDays));
+        var deletedCount = result.get("P_DELETED_COUNT");
+        return deletedCount instanceof Number n ? n.longValue() : 0L;
+    }
+
     // ========================================================================
     // DATA LOADING
     // ========================================================================
@@ -137,6 +228,27 @@ public class EtlService {
         );
 
         call.execute(params);
+    }
+
+    /**
+     * Load a single record to staging and return its sequence number.
+     */
+    @Transactional
+    public long loadRecordToStaging(String sessionId, String rawData) {
+        var call = callFactory.forProcedure(PKG_NAME, "LOAD_RECORD_TO_STAGING")
+            .declareParameters(
+                new SqlParameter("P_SESSION_ID", Types.VARCHAR),
+                new SqlParameter("P_RAW_DATA", Types.CLOB),
+                new SqlOutParameter("P_SEQ_NUM", Types.NUMERIC)
+            );
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("P_SESSION_ID", sessionId);
+        params.put("P_RAW_DATA", rawData);
+
+        var result = call.execute(params);
+        var seqNum = result.get("P_SEQ_NUM");
+        return seqNum instanceof Number n ? n.longValue() : 0L;
     }
 
     // ========================================================================
@@ -176,6 +288,14 @@ public class EtlService {
      */
     @Transactional
     public TransformMetadata transformCustomers(String sessionId) {
+        return transformCustomers(sessionId, null);
+    }
+
+    /**
+     * Transform staged customers with custom rules.
+     */
+    @Transactional
+    public TransformMetadata transformCustomers(String sessionId, String transformationRules) {
         var call = callFactory.forProcedure(PKG_NAME, "TRANSFORM_CUSTOMERS")
             .declareParameters(
                 new SqlParameter("P_SESSION_ID", Types.VARCHAR),
@@ -185,10 +305,29 @@ public class EtlService {
 
         Map<String, Object> params = new HashMap<>();
         params.put("P_SESSION_ID", sessionId);
-        params.put("P_TRANSFORMATION_RULES", null);
+        params.put("P_TRANSFORMATION_RULES", transformationRules);
 
         var result = call.execute(params);
         return mapToTransformMetadata(result.get("P_RESULTS"));
+    }
+
+    /**
+     * Apply business rules to staging data.
+     */
+    @Transactional
+    public void applyBusinessRules(String sessionId, String ruleSet) {
+        var call = callFactory.forProcedure(PKG_NAME, "APPLY_BUSINESS_RULES")
+            .declareParameters(
+                new SqlParameter("P_SESSION_ID", Types.VARCHAR),
+                new SqlParameter("P_RULE_SET", Types.VARCHAR)
+            );
+
+        // Use mutable map to handle nullable ruleSet
+        Map<String, Object> params = new HashMap<>();
+        params.put("P_SESSION_ID", sessionId);
+        params.put("P_RULE_SET", ruleSet != null ? ruleSet : "DEFAULT");
+
+        call.execute(params);
     }
 
     // ========================================================================
@@ -230,6 +369,26 @@ public class EtlService {
     }
 
     /**
+     * Get validation summary for a session.
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Object> getValidationSummary(String sessionId) {
+        var sql = """
+            SELECT 
+                COUNT(*) as total_count,
+                COUNT(CASE WHEN status = 'PENDING' THEN 1 END) as pending_count,
+                COUNT(CASE WHEN status = 'TRANSFORMED' THEN 1 END) as transformed_count,
+                COUNT(CASE WHEN status = 'VALIDATED' THEN 1 END) as validated_count,
+                COUNT(CASE WHEN status = 'FAILED' THEN 1 END) as failed_count,
+                COUNT(CASE WHEN status = 'SKIPPED' THEN 1 END) as skipped_count
+            FROM etl_staging
+            WHERE session_id = ?
+            """;
+
+        return jdbcTemplate.queryForMap(sql, sessionId);
+    }
+
+    /**
      * Get validation errors for a session.
      */
     @Transactional(readOnly = true)
@@ -266,7 +425,29 @@ public class EtlService {
      */
     @Transactional
     public TransformMetadata promoteContracts(String sessionId) {
-        return promoteFromStaging(sessionId, "CONTRACTS");
+        return promoteContracts(sessionId, "SYSTEM");
+    }
+
+    /**
+     * Promote validated contracts from staging to target with specified user.
+     */
+    @Transactional
+    public TransformMetadata promoteContracts(String sessionId, String user) {
+        var call = callFactory.forProcedure(PKG_NAME, "PROMOTE_CONTRACTS")
+            .declareParameters(
+                new SqlParameter("P_SESSION_ID", Types.VARCHAR),
+                new SqlParameter("P_USER", Types.VARCHAR),
+                new SqlOutParameter("P_RESULTS", Types.STRUCT, "TRANSFORM_METADATA_T")
+            );
+
+        // Guard against null user - use mutable map
+        String safeUser = java.util.Objects.requireNonNullElse(user, "SYSTEM");
+        Map<String, Object> params = new HashMap<>();
+        params.put("P_SESSION_ID", sessionId);
+        params.put("P_USER", safeUser);
+
+        var result = call.execute(params);
+        return mapToTransformMetadata(result.get("P_RESULTS"));
     }
 
     /**
@@ -274,14 +455,36 @@ public class EtlService {
      */
     @Transactional
     public TransformMetadata promoteCustomers(String sessionId) {
-        return promoteFromStaging(sessionId, "CUSTOMERS");
+        return promoteCustomers(sessionId, "SYSTEM");
+    }
+
+    /**
+     * Promote validated customers from staging to target with specified user.
+     */
+    @Transactional
+    public TransformMetadata promoteCustomers(String sessionId, String user) {
+        var call = callFactory.forProcedure(PKG_NAME, "PROMOTE_CUSTOMERS")
+            .declareParameters(
+                new SqlParameter("P_SESSION_ID", Types.VARCHAR),
+                new SqlParameter("P_USER", Types.VARCHAR),
+                new SqlOutParameter("P_RESULTS", Types.STRUCT, "TRANSFORM_METADATA_T")
+            );
+
+        // Guard against null user - use mutable map  
+        String safeUser = java.util.Objects.requireNonNullElse(user, "SYSTEM");
+        Map<String, Object> params = new HashMap<>();
+        params.put("P_SESSION_ID", sessionId);
+        params.put("P_USER", safeUser);
+
+        var result = call.execute(params);
+        return mapToTransformMetadata(result.get("P_RESULTS"));
     }
 
     /**
      * Generic promotion from staging.
      */
     @Transactional
-    public TransformMetadata promoteFromStaging(String sessionId, String targetTable) {
+    public TransformMetadata promoteFromStaging(String sessionId, String targetTable, String user) {
         var call = callFactory.forProcedure(PKG_NAME, "PROMOTE_FROM_STAGING")
             .declareParameters(
                 new SqlParameter("P_SESSION_ID", Types.VARCHAR),
@@ -290,11 +493,11 @@ public class EtlService {
                 new SqlOutParameter("P_RESULTS", Types.STRUCT, "TRANSFORM_METADATA_T")
             );
 
-        Map<String, Object> params = Map.of(
-            "P_SESSION_ID", sessionId,
-            "P_TARGET_TABLE", targetTable,
-            "P_USER", "SYSTEM"
-        );
+        String safeUser = java.util.Objects.requireNonNullElse(user, "SYSTEM");
+        Map<String, Object> params = new HashMap<>();
+        params.put("P_SESSION_ID", sessionId);
+        params.put("P_TARGET_TABLE", targetTable);
+        params.put("P_USER", safeUser);
 
         var result = call.execute(params);
         return mapToTransformMetadata(result.get("P_RESULTS"));

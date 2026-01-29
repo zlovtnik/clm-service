@@ -1,0 +1,738 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "ORDS generated API for ETL_PKG",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "${ORDS_BASE_URL}/etl_pkg"
+        }
+    ],
+    "paths": {
+        "/APPLY_BUSINESS_RULES": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/APPLY_VALIDATION_RESULTS": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_2"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/BATCH_LOAD_TO_STAGING": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_3"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CLEANUP_OLD_SESSIONS": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_deleted_count": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_4"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/COMPLETE_SESSION": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_2"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CREATE_STAGING_SESSION": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_session_id": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_5"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/FAIL_SESSION": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_6"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_ACTIVE_SESSIONS": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": []
+            }
+        },
+        "/GET_SESSION_AUDIT_TRAIL": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_2"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_SESSION_INFO": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_2"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_SESSION_STATUS": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_2"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_VALIDATION_SUMMARY": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_2"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/LOAD_RECORD_TO_STAGING": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_seq_num": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_7"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/LOAD_TO_STAGING": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_8"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/PROMOTE_CONTRACTS": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_results": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_9"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/PROMOTE_CUSTOMERS": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_results": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_9"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/PROMOTE_FROM_STAGING": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_results": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_10"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ROLLBACK_SESSION": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_2"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/TRANSFORM_CONTRACTS": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_results": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_11"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/TRANSFORM_CUSTOMERS": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_results": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_11"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/VALIDATE_STAGING_DATA": {
+            "post": {
+                "description": "Create a new record on ETL_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/etl_pkg_ITEM_2"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CLOB": {
+                "type": "string"
+            },
+            "NUMBER": {
+                "type": "number"
+            },
+            "TABLE": {
+                "type": "array",
+                "items": {
+                    "type": "object"
+                },
+                "description": "Oracle TABLE type represented as JSON array"
+            },
+            "VARCHAR2": {
+                "type": "string"
+            },
+            "etl_pkg_ITEM": {
+                "properties": {
+                    "p_rule_set": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_session_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "etl_pkg_ITEM_2": {
+                "properties": {
+                    "p_session_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "etl_pkg_ITEM_3": {
+                "properties": {
+                    "p_records": {
+                        "$ref": "#/components/schemas/TABLE"
+                    },
+                    "p_session_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "etl_pkg_ITEM_4": {
+                "properties": {
+                    "p_retention_days": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    }
+                }
+            },
+            "etl_pkg_ITEM_5": {
+                "properties": {
+                    "p_entity_type": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_source_system": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_user": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "etl_pkg_ITEM_6": {
+                "properties": {
+                    "p_error_message": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_session_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "etl_pkg_ITEM_7": {
+                "properties": {
+                    "p_raw_data": {
+                        "$ref": "#/components/schemas/CLOB"
+                    },
+                    "p_session_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "etl_pkg_ITEM_8": {
+                "properties": {
+                    "p_data": {
+                        "$ref": "#/components/schemas/CLOB"
+                    },
+                    "p_format": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_session_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "etl_pkg_ITEM_9": {
+                "properties": {
+                    "p_session_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_user": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "etl_pkg_ITEM_10": {
+                "properties": {
+                    "p_session_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_target_table": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_user": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "etl_pkg_ITEM_11": {
+                "properties": {
+                    "p_session_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_transformation_rules": {
+                        "$ref": "#/components/schemas/CLOB"
+                    }
+                }
+            }
+        }
+    }
+}

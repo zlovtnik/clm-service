@@ -1,0 +1,984 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "ORDS generated API for INTEGRATION_PKG",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "${ORDS_BASE_URL}/integration_pkg"
+        }
+    ],
+    "paths": {
+        "/ADD_TO_AGGREGATION": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/APPLY_FIELD_MAPPING": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_2"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CLEANUP_COMPLETED_MESSAGES": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_deleted_count": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_3"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CLEANUP_DEDUP_RECORDS": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_deleted_count": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_4"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/COMPLETE_AGGREGATION": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_5"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CREATE_MESSAGE": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_6"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/EVALUATE_ROUTING_RULES": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_7"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GENERATE_MESSAGE_HASH": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_8"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_AGGREGATED_RESULT": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_aggregated_result": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_5"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_DEAD_LETTER_MESSAGES": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_9"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_DESTINATION": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_10"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_MESSAGE": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_11"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_MESSAGES_BY_CORRELATION": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_12"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_PENDING_MESSAGES": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_13"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/IS_AGGREGATION_COMPLETE": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_5"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/IS_DUPLICATE_BY_HASH": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_14"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/IS_DUPLICATE_MESSAGE": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_15"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/MARK_MESSAGE_PROCESSED": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_16"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/MOVE_TO_DEAD_LETTER": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_17"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/PROCESS_AGGREGATION_TIMEOUTS": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                }
+            }
+        },
+        "/RETRY_MESSAGE": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_11"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ROUTE_MESSAGE": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_destination": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_18"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/START_AGGREGATION": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_19"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/TRANSFORM_MESSAGE": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_20"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/UPDATE_MESSAGE_STATUS": {
+            "post": {
+                "description": "Create a new record on INTEGRATION_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/integration_pkg_ITEM_21"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CLOB": {
+                "type": "string"
+            },
+            "NUMBER": {
+                "type": "number"
+            },
+            "VARCHAR2": {
+                "type": "string"
+            },
+            "integration_pkg_ITEM": {
+                "properties": {
+                    "p_aggregation_key": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_correlation_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_message": {
+                        "$ref": "#/components/schemas/CLOB"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_2": {
+                "properties": {
+                    "p_mapping": {
+                        "$ref": "#/components/schemas/CLOB"
+                    },
+                    "p_message": {
+                        "$ref": "#/components/schemas/CLOB"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_3": {
+                "properties": {
+                    "p_retention_days": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_4": {
+                "properties": {
+                    "p_older_than_hours": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_5": {
+                "properties": {
+                    "p_aggregation_key": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_correlation_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_6": {
+                "properties": {
+                    "p_correlation_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_message_type": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_payload": {
+                        "$ref": "#/components/schemas/CLOB"
+                    },
+                    "p_routing_key": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_source_system": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_7": {
+                "properties": {
+                    "p_content": {
+                        "$ref": "#/components/schemas/CLOB"
+                    },
+                    "p_rule_set": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_8": {
+                "properties": {
+                    "p_message": {
+                        "$ref": "#/components/schemas/CLOB"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_9": {
+                "properties": {
+                    "p_limit": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_10": {
+                "properties": {
+                    "p_message_type": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_routing_key": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_11": {
+                "properties": {
+                    "p_message_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_12": {
+                "properties": {
+                    "p_correlation_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_13": {
+                "properties": {
+                    "p_limit": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_message_type": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_14": {
+                "properties": {
+                    "p_dedup_window_hours": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_message_hash": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_15": {
+                "properties": {
+                    "p_dedup_window_hours": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_message_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_16": {
+                "properties": {
+                    "p_correlation_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_message_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_metadata": {
+                        "$ref": "#/components/schemas/CLOB"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_17": {
+                "properties": {
+                    "p_message_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_reason": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_18": {
+                "properties": {
+                    "p_correlation_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_message_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_message_type": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_payload": {
+                        "$ref": "#/components/schemas/CLOB"
+                    },
+                    "p_routing_key": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_source_system": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_19": {
+                "properties": {
+                    "p_aggregation_key": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_correlation_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_expected_count": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_timeout_seconds": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_20": {
+                "properties": {
+                    "p_mapping_template": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_message": {
+                        "$ref": "#/components/schemas/CLOB"
+                    },
+                    "p_source_format": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_target_format": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "integration_pkg_ITEM_21": {
+                "properties": {
+                    "p_error_message": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_message_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_status": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            }
+        }
+    }
+}

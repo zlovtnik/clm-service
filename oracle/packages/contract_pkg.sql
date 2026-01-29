@@ -54,7 +54,7 @@ CREATE OR REPLACE PACKAGE contract_pkg AS
         p_contracts IN contract_tab,
         p_user IN VARCHAR2,
         p_metadata OUT transform_metadata_t,
-        p_errors OUT validation_results_tab
+        p_errors OUT validation_result_tab
     );
     
     -- ==========================================================================
@@ -130,7 +130,7 @@ CREATE OR REPLACE PACKAGE contract_pkg AS
     -- Validate contract data
     FUNCTION validate_contract(
         p_contract IN contract_t
-    ) RETURN validation_results_tab;
+    ) RETURN validation_result_tab;
     
     -- Check if status transition is valid
     FUNCTION is_valid_transition(
@@ -172,7 +172,7 @@ CREATE OR REPLACE PACKAGE contract_pkg AS
         p_tenant_id IN VARCHAR2,
         p_user IN VARCHAR2,
         p_renewed_count OUT NUMBER,
-        p_errors OUT validation_results_tab
+        p_errors OUT validation_result_tab
     );
     
 END contract_pkg;
@@ -245,7 +245,7 @@ CREATE OR REPLACE PACKAGE BODY contract_pkg AS
         p_user IN VARCHAR2
     ) RETURN NUMBER IS
         v_id NUMBER;
-        v_errors validation_results_tab;
+        v_errors validation_result_tab;
         v_existing NUMBER;
     BEGIN
         -- Validate contract
@@ -302,15 +302,15 @@ CREATE OR REPLACE PACKAGE BODY contract_pkg AS
         p_contracts IN contract_tab,
         p_user IN VARCHAR2,
         p_metadata OUT transform_metadata_t,
-        p_errors OUT validation_results_tab
+        p_errors OUT validation_result_tab
     ) IS
         v_id NUMBER;
-        v_validation validation_results_tab;
+        v_validation validation_result_tab;
         v_error validation_result_t;
     BEGIN
         p_metadata := transform_metadata_t('BULK_INSERT');
         p_metadata.record_count := p_contracts.COUNT;
-        p_errors := validation_results_tab();
+        p_errors := validation_result_tab();
         
         FOR i IN 1..p_contracts.COUNT LOOP
             BEGIN
@@ -330,7 +330,7 @@ CREATE OR REPLACE PACKAGE BODY contract_pkg AS
             EXCEPTION
                 WHEN OTHERS THEN
                     p_metadata.error_count := p_metadata.error_count + 1;
-                    v_error := validation_result_t(0, 'INSERT_ERROR', SQLERRM, 'contract[' || i || ']');
+                    v_error := validation_result_t(0, 'INSERT_ERROR', SQLERRM, i, 'contract', 'ERROR', NULL);
                     p_errors.EXTEND;
                     p_errors(p_errors.COUNT) := v_error;
             END;
@@ -427,7 +427,7 @@ CREATE OR REPLACE PACKAGE BODY contract_pkg AS
         p_user IN VARCHAR2,
         p_validation OUT validation_result_t
     ) IS
-        v_errors validation_results_tab;
+        v_errors validation_result_tab;
         v_existing contracts%ROWTYPE;
     BEGIN
         -- Check if contract exists
@@ -437,7 +437,7 @@ CREATE OR REPLACE PACKAGE BODY contract_pkg AS
             WHERE tenant_id = p_contract.tenant_id AND id = p_contract.id;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
-                p_validation := validation_result_t(0, 'NOT_FOUND', 'Contract not found', 'id');
+                p_validation := validation_result_t(0, 'NOT_FOUND', 'Contract not found', NULL, 'id', 'ERROR', NULL);
                 RETURN;
         END;
         
@@ -466,7 +466,7 @@ CREATE OR REPLACE PACKAGE BODY contract_pkg AS
             updated_by = p_user
         WHERE tenant_id = p_contract.tenant_id AND id = p_contract.id;
         
-        p_validation := validation_result_t(1, NULL, NULL, NULL);
+        p_validation := validation_result_t(1, NULL, NULL, NULL, NULL, NULL, NULL);
     END update_contract;
     
     PROCEDURE update_contract_status(
@@ -487,7 +487,7 @@ CREATE OR REPLACE PACKAGE BODY contract_pkg AS
             FOR UPDATE;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
-                p_validation := validation_result_t(0, 'NOT_FOUND', 'Contract not found', 'id');
+                p_validation := validation_result_t(0, 'NOT_FOUND', 'Contract not found', NULL, 'id', 'ERROR', NULL);
                 RETURN;
         END;
         
@@ -496,7 +496,7 @@ CREATE OR REPLACE PACKAGE BODY contract_pkg AS
             p_validation := validation_result_t(
                 0, 'INVALID_TRANSITION',
                 'Cannot transition from ' || v_current_status || ' to ' || p_new_status,
-                'status'
+                NULL, 'status', 'ERROR', NULL
             );
             RETURN;
         END IF;
@@ -511,7 +511,7 @@ CREATE OR REPLACE PACKAGE BODY contract_pkg AS
         -- Record history
         record_status_change(p_tenant_id, p_id, v_current_status, p_new_status, p_user, p_reason);
         
-        p_validation := validation_result_t(1, NULL, NULL, NULL);
+        p_validation := validation_result_t(1, NULL, NULL, NULL, NULL, NULL, NULL);
     END update_contract_status;
     
     -- ==========================================================================
@@ -542,13 +542,14 @@ CREATE OR REPLACE PACKAGE BODY contract_pkg AS
     
     FUNCTION validate_contract(
         p_contract IN contract_t
-    ) RETURN validation_results_tab IS
-        v_errors validation_results_tab := validation_results_tab();
+    ) RETURN validation_result_tab IS
+        v_errors validation_result_tab := validation_result_tab();
         
+        -- Helper procedure to add errors with consistent 7-argument constructor
         PROCEDURE add_error(p_code VARCHAR2, p_message VARCHAR2, p_field VARCHAR2) IS
         BEGIN
             v_errors.EXTEND;
-            v_errors(v_errors.COUNT) := validation_result_t(0, p_code, p_message, p_field);
+            v_errors(v_errors.COUNT) := validation_result_t(0, p_code, p_message, NULL, p_field, 'ERROR', NULL);
         END;
     BEGIN
         -- Required field validation
@@ -701,13 +702,13 @@ CREATE OR REPLACE PACKAGE BODY contract_pkg AS
         p_tenant_id IN VARCHAR2,
         p_user IN VARCHAR2,
         p_renewed_count OUT NUMBER,
-        p_errors OUT validation_results_tab
+        p_errors OUT validation_result_tab
     ) IS
         v_error validation_result_t;
         v_new_end_date DATE;
     BEGIN
         p_renewed_count := 0;
-        p_errors := validation_results_tab();
+        p_errors := validation_result_tab();
         
         FOR r IN (
             SELECT id, end_date, duration_months
@@ -729,7 +730,7 @@ CREATE OR REPLACE PACKAGE BODY contract_pkg AS
                 p_renewed_count := p_renewed_count + 1;
             EXCEPTION
                 WHEN OTHERS THEN
-                    v_error := validation_result_t(0, 'RENEWAL_ERROR', SQLERRM, 'contract_id=' || r.id);
+                    v_error := validation_result_t(0, 'RENEWAL_ERROR', SQLERRM, r.id, 'contract_id', 'ERROR', NULL);
                     p_errors.EXTEND;
                     p_errors(p_errors.COUNT) := v_error;
             END;

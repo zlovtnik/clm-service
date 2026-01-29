@@ -1,7 +1,10 @@
 package com.gprintex.clm.service;
 
 import com.gprintex.clm.config.ClmProperties;
+import com.gprintex.clm.domain.AutoRenewalResult;
 import com.gprintex.clm.domain.Contract;
+import com.gprintex.clm.domain.ContractStatistics;
+import com.gprintex.clm.domain.TransformMetadata;
 import com.gprintex.clm.domain.ValidationResult;
 import com.gprintex.clm.repository.ContractRepository;
 import com.gprintex.clm.repository.ContractRepository.ContractFilter;
@@ -10,6 +13,8 @@ import io.vavr.control.Try;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -184,6 +189,78 @@ public class ContractService {
     @Transactional
     public Try<Void> softDelete(String tenantId, Long id, String user, String reason) {
         return repository.softDelete(tenantId, id, user, reason);
+    }
+
+    // ========================================================================
+    // BULK OPERATIONS
+    // ========================================================================
+
+    /**
+     * Bulk insert contracts with tenant validation.
+     * @param tenantId The tenant ID to enforce on all contracts
+     * @param contracts The contracts to insert
+     * @param user The user performing the operation
+     */
+    @Transactional
+    public Try<TransformMetadata> bulkInsert(String tenantId, List<Contract> contracts, String user) {
+        return Try.of(() -> {
+            // Validate and ensure all contracts have the correct tenant
+            List<Contract> validatedContracts = new java.util.ArrayList<>();
+            for (Contract c : contracts) {
+                if (c.tenantId() != null && !c.tenantId().isBlank() && !c.tenantId().equals(tenantId)) {
+                    throw new IllegalArgumentException(
+                        String.format("Contract tenant ID mismatch: expected '%s', got '%s' for contract id=%s",
+                            tenantId, c.tenantId(), c.id() != null ? c.id() : "new"));
+                }
+                validatedContracts.add(c.tenantId() == null || c.tenantId().isBlank() ? c.withTenantId(tenantId) : c);
+            }
+            return validatedContracts;
+        }).flatMap(validatedContracts -> repository.bulkInsert(validatedContracts, user));
+    }
+
+    /**
+     * Process automatic renewals for expiring contracts.
+     */
+    @Transactional
+    public Try<AutoRenewalResult> processAutoRenewals(String tenantId, String user) {
+        return repository.processAutoRenewals(tenantId, user);
+    }
+
+    // ========================================================================
+    // ANALYTICS
+    // ========================================================================
+
+    /**
+     * Calculate total value of a contract including line items.
+     * @return Optional.empty() if contract does not exist
+     */
+    @Transactional(readOnly = true)
+    public Optional<BigDecimal> calculateContractTotal(String tenantId, Long contractId) {
+        return repository.calculateContractTotal(tenantId, contractId);
+    }
+
+    /**
+     * Get contract statistics for a time period.
+     */
+    @Transactional(readOnly = true)
+    public ContractStatistics getStatistics(String tenantId, LocalDate startDate, LocalDate endDate) {
+        return repository.getStatistics(tenantId, startDate, endDate);
+    }
+
+    /**
+     * Check if a contract is expiring within threshold days.
+     * @return Optional.empty() if contract does not exist
+     */
+    @Transactional(readOnly = true)
+    public Optional<Boolean> isExpiringSoon(String tenantId, Long contractId, int daysThreshold) {
+        return repository.isExpiringSoon(tenantId, contractId, daysThreshold);
+    }
+
+    /**
+     * Check if a status transition is valid.
+     */
+    public boolean isValidTransition(String currentStatus, String newStatus) {
+        return repository.isValidTransition(currentStatus, newStatus);
     }
 
     // ========================================================================

@@ -1,12 +1,16 @@
 package com.gprintex.clm.api;
 
 import com.gprintex.clm.domain.Contract;
+import com.gprintex.clm.domain.ContractStatistics;
 import com.gprintex.clm.domain.ValidationResult;
 import com.gprintex.clm.service.ContractService;
 import com.gprintex.clm.repository.ContractRepository.ContractFilter;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -176,5 +180,132 @@ public class ContractController {
     public ResponseEntity<List<ValidationResult>> validate(@RequestBody Contract contract) {
         var results = contractService.validate(contract);
         return ResponseEntity.ok(results);
+    }
+
+    // ========================================================================
+    // BULK OPERATIONS
+    // ========================================================================
+
+    @PostMapping("/bulk")
+    public ResponseEntity<?> bulkInsert(
+        @RequestBody List<Contract> contracts,
+        @RequestHeader("X-User-Id") String userId,
+        @RequestHeader("X-Tenant-Id") String tenantId
+    ) {
+        // Validate tenant header
+        if (tenantId == null || tenantId.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "X-Tenant-Id header is required"));
+        }
+        
+        // Validate contracts list is non-empty
+        if (contracts == null || contracts.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Contracts list cannot be empty"));
+        }
+        
+        // Validate tenant ID for each contract - reject mismatch rather than silently overwriting
+        for (Contract c : contracts) {
+            if (c.tenantId() != null && !c.tenantId().isBlank() && !c.tenantId().equals(tenantId)) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Contract tenant ID mismatch",
+                    "expected", tenantId,
+                    "found", c.tenantId()
+                ));
+            }
+        }
+        
+        var result = contractService.bulkInsert(tenantId, contracts, userId);
+        
+        return result.fold(
+            error -> ResponseEntity.internalServerError().body(Map.of("error", error.getMessage())),
+            ResponseEntity::ok
+        );
+    }
+
+    @PostMapping("/auto-renewals")
+    public ResponseEntity<?> processAutoRenewals(
+        @RequestHeader("X-Tenant-Id") String tenantId,
+        @RequestHeader("X-User-Id") String userId
+    ) {
+        // Validate tenant header
+        if (tenantId == null || tenantId.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "X-Tenant-Id header is required"));
+        }
+        
+        var result = contractService.processAutoRenewals(tenantId, userId);
+        return result.fold(
+            error -> ResponseEntity.internalServerError().body(Map.of("error", error.getMessage())),
+            success -> ResponseEntity.ok(success)
+        );
+    }
+
+    // ========================================================================
+    // ANALYTICS
+    // ========================================================================
+
+    @GetMapping("/count")
+    public ResponseEntity<Map<String, Long>> count(
+        @RequestHeader("X-Tenant-Id") String tenantId,
+        @RequestParam(required = false) String status,
+        @RequestParam(required = false) Long customerId
+    ) {
+        var count = contractService.count(tenantId, status, customerId);
+        return ResponseEntity.ok(Map.of("count", count));
+    }
+
+    @GetMapping("/{id}/total")
+    public ResponseEntity<?> calculateTotal(
+        @PathVariable Long id,
+        @RequestHeader("X-Tenant-Id") String tenantId
+    ) {
+        // First verify contract exists and belongs to tenant
+        var contract = contractService.findById(tenantId, id);
+        if (contract.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        return contractService.calculateContractTotal(tenantId, id)
+            .map(total -> ResponseEntity.ok(Map.of("total", total)))
+            .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<ContractStatistics> getStatistics(
+        @RequestHeader("X-Tenant-Id") String tenantId,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        var stats = contractService.getStatistics(tenantId, startDate, endDate);
+        return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/{id}/expiring-soon")
+    public ResponseEntity<?> isExpiringSoon(
+        @PathVariable Long id,
+        @RequestHeader("X-Tenant-Id") String tenantId,
+        @RequestParam(defaultValue = "30") int daysThreshold
+    ) {
+        // Validate daysThreshold is non-negative
+        if (daysThreshold < 0) {
+            return ResponseEntity.badRequest().body(Map.of("error", "daysThreshold must be >= 0"));
+        }
+        
+        // Verify contract exists
+        var contract = contractService.findById(tenantId, id);
+        if (contract.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        return contractService.isExpiringSoon(tenantId, id, daysThreshold)
+            .map(expiringSoon -> ResponseEntity.ok(Map.of("expiringSoon", expiringSoon)))
+            .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/transitions/valid")
+    public ResponseEntity<Map<String, Boolean>> isValidTransition(
+        @RequestParam String currentStatus,
+        @RequestParam String newStatus
+    ) {
+        var valid = contractService.isValidTransition(currentStatus, newStatus);
+        return ResponseEntity.ok(Map.of("valid", valid));
     }
 }

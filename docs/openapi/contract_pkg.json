@@ -1,0 +1,743 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "ORDS generated API for CONTRACT_PKG",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "${ORDS_BASE_URL}/contract_pkg"
+        }
+    ],
+    "paths": {
+        "/BULK_INSERT_CONTRACTS": {
+            "post": {
+                "description": "Bulk insert multiple contracts into the system",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_errors": {
+                                            "type": "string"
+                                        },
+                                        "p_metadata": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CALCULATE_CONTRACT_TOTAL": {
+            "post": {
+                "description": "Calculate the total value of a contract including all line items",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM_2"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/COUNT_CONTRACTS": {
+            "post": {
+                "description": "Count contracts matching specified criteria",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM_3"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_ALLOWED_TRANSITIONS": {
+            "post": {
+                "description": "Create a new record on CONTRACT_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM_4"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_CONTRACTS_BY_FILTER": {
+            "post": {
+                "description": "Create a new record on CONTRACT_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM_5"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_CONTRACT_BY_ID": {
+            "post": {
+                "description": "Retrieve a contract by its unique identifier",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM_6"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_CONTRACT_BY_NUMBER": {
+            "post": {
+                "description": "Create a new record on CONTRACT_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM_7"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_CONTRACT_STATISTICS": {
+            "post": {
+                "description": "Create a new record on CONTRACT_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM_8"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/INSERT_CONTRACT": {
+            "post": {
+                "description": "Create a new record on CONTRACT_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM_9"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/IS_EXPIRING_SOON": {
+            "post": {
+                "description": "Create a new record on CONTRACT_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM_10"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/IS_VALID_TRANSITION": {
+            "post": {
+                "description": "Validate whether a contract status transition is allowed",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM_11"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/PROCESS_AUTO_RENEWALS": {
+            "post": {
+                "description": "Process automatic renewals for expiring contracts",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_errors": {
+                                            "type": "string"
+                                        },
+                                        "p_renewed_count": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM_12"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/SOFT_DELETE_CONTRACT": {
+            "post": {
+                "description": "Soft delete a contract (mark as deleted without removing)",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM_13"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/UPDATE_CONTRACT": {
+            "post": {
+                "description": "Update an existing contract record",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_validation": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM_9"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/UPDATE_CONTRACT_STATUS": {
+            "post": {
+                "description": "Update the status of a contract",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_validation": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM_14"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/VALIDATE_CONTRACT": {
+            "post": {
+                "description": "Create a new record on CONTRACT_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {
+                                            "type": "object",
+                                            "description": "Return value from the procedure",
+                                            "example": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/contract_pkg_ITEM_15"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "DATE": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-[01]\\d-[0123]\\dT[012]\\d:[0-5]\\d:[0-5]\\d(.\\d+)?(Z|([-+][012]\\d:[0-5]\\d))$"
+            },
+            "NUMBER": {
+                "type": "number"
+            },
+            "OBJECT": {
+                "type": "string"
+            },
+            "TABLE": {
+                "type": "string"
+            },
+            "VARCHAR2": {
+                "type": "string"
+            },
+            "contract_pkg_ITEM": {
+                "properties": {
+                    "p_contracts": {
+                        "$ref": "#/components/schemas/TABLE"
+                    },
+                    "p_user": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "contract_pkg_ITEM_2": {
+                "properties": {
+                    "p_contract_id": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "contract_pkg_ITEM_3": {
+                "properties": {
+                    "p_customer_id": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_status": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "contract_pkg_ITEM_4": {
+                "properties": {
+                    "p_current_status": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "contract_pkg_ITEM_5": {
+                "properties": {
+                    "p_contract_type": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_customer_id": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_end_date": {
+                        "$ref": "#/components/schemas/DATE"
+                    },
+                    "p_start_date": {
+                        "$ref": "#/components/schemas/DATE"
+                    },
+                    "p_status": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "contract_pkg_ITEM_6": {
+                "properties": {
+                    "p_id": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "contract_pkg_ITEM_7": {
+                "properties": {
+                    "p_contract_number": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "contract_pkg_ITEM_8": {
+                "properties": {
+                    "p_end_date": {
+                        "$ref": "#/components/schemas/DATE"
+                    },
+                    "p_start_date": {
+                        "$ref": "#/components/schemas/DATE"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "contract_pkg_ITEM_9": {
+                "properties": {
+                    "p_contract": {
+                        "$ref": "#/components/schemas/OBJECT"
+                    },
+                    "p_user": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "contract_pkg_ITEM_10": {
+                "properties": {
+                    "p_contract_id": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_days_threshold": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "contract_pkg_ITEM_11": {
+                "properties": {
+                    "p_current_status": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_new_status": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "contract_pkg_ITEM_12": {
+                "properties": {
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_user": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "contract_pkg_ITEM_13": {
+                "properties": {
+                    "p_id": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_reason": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_user": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "contract_pkg_ITEM_14": {
+                "properties": {
+                    "p_id": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_new_status": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_reason": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_user": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "contract_pkg_ITEM_15": {
+                "properties": {
+                    "p_contract": {
+                        "$ref": "#/components/schemas/OBJECT"
+                    }
+                }
+            }
+        }
+    }
+}

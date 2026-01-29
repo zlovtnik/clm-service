@@ -1,0 +1,554 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "ORDS generated API for CUSTOMER_PKG",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "${ORDS_BASE_URL}/customer_pkg"
+        }
+    ],
+    "paths": {
+        "/BULK_UPSERT_CUSTOMERS": {
+            "post": {
+                "description": "Create a new record on CUSTOMER_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_metadata": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customer_pkg_ITEM"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/COUNT_CUSTOMERS": {
+            "post": {
+                "description": "Create a new record on CUSTOMER_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customer_pkg_ITEM_2"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/FIND_DUPLICATES": {
+            "post": {
+                "description": "Create a new record on CUSTOMER_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_results": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customer_pkg_ITEM_3"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_CUSTOMERS_BY_FILTER": {
+            "post": {
+                "description": "Create a new record on CUSTOMER_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customer_pkg_ITEM_4"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_CUSTOMER_BY_CODE": {
+            "post": {
+                "description": "Create a new record on CUSTOMER_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customer_pkg_ITEM_5"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/GET_CUSTOMER_BY_ID": {
+            "post": {
+                "description": "Create a new record on CUSTOMER_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customer_pkg_ITEM_6"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/INSERT_CUSTOMER": {
+            "post": {
+                "description": "Create a new record on CUSTOMER_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customer_pkg_ITEM_7"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/MERGE_CUSTOMERS": {
+            "post": {
+                "description": "Create a new record on CUSTOMER_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_validation": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customer_pkg_ITEM_8"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/SET_CUSTOMER_ACTIVE": {
+            "post": {
+                "description": "Create a new record on CUSTOMER_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution."
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customer_pkg_ITEM_9"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/UPDATE_CUSTOMER": {
+            "post": {
+                "description": "Create a new record on CUSTOMER_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "p_validation": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customer_pkg_ITEM_7"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/VALIDATE_CUSTOMER": {
+            "post": {
+                "description": "Create a new record on CUSTOMER_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customer_pkg_ITEM_10"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/VALIDATE_EMAIL": {
+            "post": {
+                "description": "Create a new record on CUSTOMER_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customer_pkg_ITEM_11"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/VALIDATE_TAX_ID": {
+            "post": {
+                "description": "Create a new record on CUSTOMER_PKG",
+                "responses": {
+                    "200": {
+                        "description": "Result of execution.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "~ret": {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customer_pkg_ITEM_12"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "NUMBER": {
+                "type": "number"
+            },
+            "OBJECT": {
+                "type": "string"
+            },
+            "TABLE": {
+                "type": "string"
+            },
+            "VARCHAR2": {
+                "type": "string"
+            },
+            "customer_pkg_ITEM": {
+                "properties": {
+                    "p_customers": {
+                        "$ref": "#/components/schemas/TABLE"
+                    },
+                    "p_merge_on": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_user": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "customer_pkg_ITEM_2": {
+                "properties": {
+                    "p_active": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "customer_pkg_ITEM_3": {
+                "properties": {
+                    "p_match_criteria": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "customer_pkg_ITEM_4": {
+                "properties": {
+                    "p_active": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_customer_type": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_search_term": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "customer_pkg_ITEM_5": {
+                "properties": {
+                    "p_code": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "customer_pkg_ITEM_6": {
+                "properties": {
+                    "p_id": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "customer_pkg_ITEM_7": {
+                "properties": {
+                    "p_customer": {
+                        "$ref": "#/components/schemas/OBJECT"
+                    },
+                    "p_user": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "customer_pkg_ITEM_8": {
+                "properties": {
+                    "p_keep_id": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_merge_id": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_user": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "customer_pkg_ITEM_9": {
+                "properties": {
+                    "p_active": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_id": {
+                        "$ref": "#/components/schemas/NUMBER"
+                    },
+                    "p_tenant_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_user": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "customer_pkg_ITEM_10": {
+                "properties": {
+                    "p_customer": {
+                        "$ref": "#/components/schemas/OBJECT"
+                    }
+                }
+            },
+            "customer_pkg_ITEM_11": {
+                "properties": {
+                    "p_email": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            },
+            "customer_pkg_ITEM_12": {
+                "properties": {
+                    "p_customer_type": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    },
+                    "p_tax_id": {
+                        "$ref": "#/components/schemas/VARCHAR2"
+                    }
+                }
+            }
+        }
+    }
+}
+

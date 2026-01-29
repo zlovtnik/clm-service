@@ -465,11 +465,11 @@ CREATE OR REPLACE PACKAGE BODY integration_pkg AS
         RETURN v_result;
     EXCEPTION
         WHEN OTHERS THEN
-            -- Log transformation error for debugging (without sensitive message content)
-            INSERT INTO integration_logs (message, error_details, created_at)
-            VALUES (p_source_format || ' to ' || p_target_format || ' transformation failed', 
-                    'Error code: ' || SQLCODE, SYSTIMESTAMP);
-            COMMIT;
+            -- Log transformation error using autonomous transaction logger (no COMMIT in caller's context)
+            log_integration_error_autonomous(
+                p_source_format || ' to ' || p_target_format || ' transformation failed',
+                'Error code: ' || TO_CHAR(SQLCODE) || ' - ' || SQLERRM
+            );
             -- Re-raise the error so callers see the failure instead of receiving bad data
             RAISE;
     END transform_message;
@@ -782,35 +782,52 @@ CREATE OR REPLACE PACKAGE BODY integration_pkg AS
     FUNCTION generate_message_hash(
         p_message IN CLOB
     ) RETURN VARCHAR2 IS
+        v_hash_raw RAW(32);
         v_blob BLOB;
         v_dest_offset INTEGER := 1;
         v_src_offset INTEGER := 1;
         v_lang_context INTEGER := DBMS_LOB.DEFAULT_LANG_CTX;
         v_warning INTEGER;
-        v_hash VARCHAR2(64);
+        v_clob_len INTEGER;
     BEGIN
-        -- Convert CLOB to BLOB for DBMS_CRYPTO.HASH (handles >32KB)
-        DBMS_LOB.CREATETEMPORARY(v_blob, TRUE);
-        DBMS_LOB.CONVERTTOBLOB(
-            dest_lob => v_blob,
-            src_clob => p_message,
-            amount => DBMS_LOB.LOBMAXSIZE,
-            dest_offset => v_dest_offset,
-            src_offset => v_src_offset,
-            blob_csid => DBMS_LOB.DEFAULT_CSID,
-            lang_context => v_lang_context,
-            warning => v_warning
-        );
+        -- Handle NULL or empty CLOB
+        IF p_message IS NULL OR DBMS_LOB.GETLENGTH(p_message) = 0 THEN
+            RETURN NULL;
+        END IF;
         
-        v_hash := RAWTOHEX(DBMS_CRYPTO.HASH(v_blob, DBMS_CRYPTO.HASH_SH256));
-        DBMS_LOB.FREETEMPORARY(v_blob);
-        RETURN v_hash;
-    EXCEPTION
-        WHEN OTHERS THEN
-            IF v_blob IS NOT NULL THEN
-                DBMS_LOB.FREETEMPORARY(v_blob);
-            END IF;
-            RAISE;
+        v_clob_len := DBMS_LOB.GETLENGTH(p_message);
+        
+        -- Create temporary BLOB
+        DBMS_LOB.CREATETEMPORARY(v_blob, TRUE);
+        
+        BEGIN
+            -- Convert CLOB to BLOB for full-message hashing
+            DBMS_LOB.CONVERTTOBLOB(
+                dest_lob     => v_blob,
+                src_clob     => p_message,
+                amount       => v_clob_len,
+                dest_offset  => v_dest_offset,
+                src_offset   => v_src_offset,
+                blob_csid    => DBMS_LOB.DEFAULT_CSID,
+                lang_context => v_lang_context,
+                warning      => v_warning
+            );
+            
+            -- Compute SHA-256 hash of entire BLOB
+            v_hash_raw := DBMS_CRYPTO.HASH(v_blob, DBMS_CRYPTO.HASH_SH256);
+            
+            -- Free temporary BLOB
+            DBMS_LOB.FREETEMPORARY(v_blob);
+            
+            RETURN RAWTOHEX(v_hash_raw);
+        EXCEPTION
+            WHEN OTHERS THEN
+                -- Ensure cleanup on error
+                IF DBMS_LOB.ISTEMPORARY(v_blob) = 1 THEN
+                    DBMS_LOB.FREETEMPORARY(v_blob);
+                END IF;
+                RAISE;
+        END;
     END generate_message_hash;
     
     -- ==========================================================================

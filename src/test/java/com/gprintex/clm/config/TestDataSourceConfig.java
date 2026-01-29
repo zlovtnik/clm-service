@@ -9,7 +9,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import javax.sql.DataSource;
-import com.gprintex.clm.repository.SimpleJdbcCallFactory;
 
 /**
  * Test configuration providing an in-memory H2 database.

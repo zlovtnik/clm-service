@@ -1,7 +1,9 @@
 package com.gprintex.clm.repository;
 
 import com.gprintex.clm.config.SimpleJdbcCallFactory;
+import com.gprintex.clm.domain.AutoRenewalResult;
 import com.gprintex.clm.domain.Contract;
+import com.gprintex.clm.domain.ContractStatistics;
 import com.gprintex.clm.domain.ContractStatus;
 import com.gprintex.clm.domain.TransformMetadata;
 import com.gprintex.clm.domain.ValidationResult;
@@ -297,6 +299,173 @@ public class OracleContractRepository implements ContractRepository {
         } catch (IllegalArgumentException e) {
             return List.of();
         }
+    }
+
+    @Override
+    public Optional<BigDecimal> calculateContractTotal(String tenantId, Long contractId) {
+        var call = callFactory.forFunction(PKG_NAME, "CALCULATE_CONTRACT_TOTAL")
+            .declareParameters(
+                new SqlOutParameter("RETURN", Types.NUMERIC),
+                new SqlParameter("P_TENANT_ID", Types.VARCHAR),
+                new SqlParameter("P_CONTRACT_ID", Types.NUMERIC)
+            );
+
+        Map<String, Object> params = Map.of(
+            "P_TENANT_ID", tenantId,
+            "P_CONTRACT_ID", contractId
+        );
+
+        var result = call.execute(params);
+        var returnValue = result.get("RETURN");
+        
+        if (returnValue == null) {
+            return Optional.empty();
+        }
+        
+        BigDecimal total;
+        if (returnValue instanceof BigDecimal bd) {
+            total = bd;
+        } else if (returnValue instanceof java.math.BigInteger bi) {
+            total = new BigDecimal(bi);
+        } else if (returnValue instanceof Number n) {
+            // Use toString() to preserve exact decimal digits, avoid doubleValue() precision loss
+            total = new BigDecimal(returnValue.toString());
+        } else {
+            return Optional.empty();
+        }
+        
+        return Optional.of(total);
+    }
+
+    @Override
+    public ContractStatistics getStatistics(String tenantId, LocalDate startDate, LocalDate endDate) {
+        var call = callFactory.forFunction(PKG_NAME, "GET_CONTRACT_STATISTICS")
+            .returningResultSet("RETURN", (rs, rowNum) -> new ContractStatistics(
+                rs.getLong("TOTAL_CONTRACTS"),
+                rs.getLong("ACTIVE_CONTRACTS"),
+                rs.getLong("PENDING_CONTRACTS"),
+                rs.getLong("EXPIRED_CONTRACTS"),
+                rs.getLong("CANCELLED_CONTRACTS"),
+                rs.getBigDecimal("TOTAL_VALUE"),
+                rs.getBigDecimal("AVERAGE_VALUE"),
+                rs.getLong("EXPIRING_WITHIN_30_DAYS"),
+                rs.getLong("AUTO_RENEW_ENABLED")
+            ));
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("P_TENANT_ID", tenantId);
+        params.put("P_START_DATE", startDate != null ? java.sql.Date.valueOf(startDate) : null);
+        params.put("P_END_DATE", endDate != null ? java.sql.Date.valueOf(endDate) : null);
+
+        try {
+            var result = call.execute(params);
+            @SuppressWarnings("unchecked")
+            var stats = (List<ContractStatistics>) result.get("RETURN");
+            return stats.stream().findFirst().orElse(ContractStatistics.empty());
+        } catch (Exception e) {
+            java.util.logging.Logger.getLogger(OracleContractRepository.class.getName())
+                .log(java.util.logging.Level.WARNING, "Error getting statistics", e);
+            return ContractStatistics.empty();
+        }
+    }
+
+    @Override
+    public Optional<Boolean> isExpiringSoon(String tenantId, Long contractId, int daysThreshold) {
+        // First check if contract exists
+        if (findById(tenantId, contractId).isEmpty()) {
+            return Optional.empty();
+        }
+        
+        var call = callFactory.forFunction(PKG_NAME, "IS_EXPIRING_SOON")
+            .declareParameters(
+                new SqlOutParameter("RETURN", Types.NUMERIC),
+                new SqlParameter("P_TENANT_ID", Types.VARCHAR),
+                new SqlParameter("P_CONTRACT_ID", Types.NUMERIC),
+                new SqlParameter("P_DAYS_THRESHOLD", Types.NUMERIC)
+            );
+
+        Map<String, Object> params = Map.of(
+            "P_TENANT_ID", tenantId,
+            "P_CONTRACT_ID", contractId,
+            "P_DAYS_THRESHOLD", daysThreshold
+        );
+
+        var result = call.execute(params);
+        var returnValue = result.get("RETURN");
+        if (returnValue == null) {
+            return Optional.empty();
+        }
+        if (!(returnValue instanceof Number)) {
+            log.warn("isExpiringSoon returned non-numeric value: {}", returnValue.getClass().getName());
+            return Optional.empty();
+        }
+        return Optional.of(((Number) returnValue).intValue() == 1);
+    }
+
+    @Override
+    public boolean isValidTransition(String currentStatus, String newStatus) {
+        var call = callFactory.forFunction(PKG_NAME, "IS_VALID_TRANSITION")
+            .declareParameters(
+                new SqlOutParameter("RETURN", Types.NUMERIC),
+                new SqlParameter("P_CURRENT_STATUS", Types.VARCHAR),
+                new SqlParameter("P_NEW_STATUS", Types.VARCHAR)
+            );
+
+        Map<String, Object> params = Map.of(
+            "P_CURRENT_STATUS", currentStatus,
+            "P_NEW_STATUS", newStatus
+        );
+
+        var result = call.execute(params);
+        var returnValue = result.get("RETURN");
+        return returnValue instanceof Number && ((Number) returnValue).intValue() == 1;
+    }
+
+    @Override
+    public Try<AutoRenewalResult> processAutoRenewals(String tenantId, String user) {
+        return Try.of(() -> {
+            var call = callFactory.forProcedure(PKG_NAME, "PROCESS_AUTO_RENEWALS")
+                .declareParameters(
+                    new SqlParameter("P_TENANT_ID", Types.VARCHAR),
+                    new SqlParameter("P_USER", Types.VARCHAR),
+                    new SqlOutParameter("P_RENEWED_COUNT", Types.NUMERIC),
+                    new SqlOutParameter("P_ERRORS", Types.CLOB)
+                );
+
+            Map<String, Object> params = Map.of(
+                "P_TENANT_ID", tenantId,
+                "P_USER", user
+            );
+
+            var result = call.execute(params);
+            int renewedCount = result.get("P_RENEWED_COUNT") instanceof Number 
+                ? ((Number) result.get("P_RENEWED_COUNT")).intValue() : 0;
+            
+            // Handle both String and Clob types for P_ERRORS
+            Object errorsObj = result.get("P_ERRORS");
+            String errorsText = null;
+            if (errorsObj instanceof String s) {
+                errorsText = s;
+            } else if (errorsObj instanceof java.sql.Clob clob) {
+                try {
+                    errorsText = clob.getSubString(1, (int) clob.length());
+                } catch (java.sql.SQLException e) {
+                    log.warn("Error reading P_ERRORS Clob", e);
+                } finally {
+                    try {
+                        clob.free();
+                    } catch (java.sql.SQLException e) {
+                        log.warn("Error freeing P_ERRORS Clob", e);
+                    }
+                }
+            }
+            
+            List<String> errors = errorsText != null && !errorsText.isBlank()
+                ? Arrays.asList(errorsText.split("\n"))
+                : List.of();
+
+            return new AutoRenewalResult(renewedCount, errors);
+        });
     }
 
     // ========================================================================
